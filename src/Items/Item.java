@@ -4,6 +4,7 @@ public class Item {
     public String name;
     public int id;
     public float price;
+    public float discunt = 0;
 
     public Item(String name, int id, float price) {
         this.name = name;
