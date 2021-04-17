@@ -1,6 +1,10 @@
+import Baskets.BasketForEmployee;
+import Baskets.BasketForLoyalCustomers;
+import Baskets.StoreBasket;
 import Items.*;
 import Users.*;
 
+import javax.security.auth.callback.TextInputCallback;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -8,6 +12,7 @@ import java.util.ResourceBundle;
 import java.util.Scanner;
 
 public class Main {
+
     private static String lang;
     private static String country;
     private static Locale l;
@@ -16,12 +21,18 @@ public class Main {
     public static ArrayList<Item> ITEMS = new ArrayList<>();
     public static ArrayList<User> EMPLOYEES = new ArrayList<>();
     public static ArrayList<User> CUSTOMERS = new ArrayList<>();
+    public static ArrayList<StoreBasket> BasketServed = new ArrayList<>();
+    public static ArrayList<StoreBasket> BasketBeingServed = new ArrayList<>();
 
     private static int itemId = 0;
     private static int userId = 0;
+    private static int basketId = 0;
 
     private static Manager currentManager = null;
     private static Cashier currentCashier = null;
+    private static StoreBasket openedBasket =null;
+
+    private static String addressOfShop = "Singapore";
 
     public static void main(String[] args) {
         PopulateItem();
@@ -50,6 +61,49 @@ public class Main {
             currentCashier = HandleCashierLogin();
 
             println(r.getString("wish") + " : " +currentCashier.name);
+            while(true)
+            {
+                SimulateClearScreen();
+                if(openedBasket != null)
+                {
+                    DisplayCurrentBasketInfo();
+                }
+                else println("NO BASKET OPENED.");
+                DisplayCashierMenu();
+                var function = InputNumber();
+                if(function == 1)
+                {
+                    AddNewBasket();
+                }
+                else if(function == 2)
+                {
+                    AddItemToBasket();
+                }
+                else if(function == 3)
+                {
+                    RemoveItemFromBasket();
+                }
+                else if(function == 4)
+                {
+                    PrintInfoOfCertainBasket();
+                }
+                else if(function == 5)
+                {
+                    AddChristmasDiscount();
+                }
+                else if(function == 6)
+                {
+                    ChangeOpenedBasket();
+                }
+                else if(function == 7)
+                {
+                    ProcessCurrentBasket();
+                }
+                else if(function == 8)
+                {
+                    return;
+                }
+            }
         }
         //TODO Currently not handling Manager Login and Operations
         else if(loginType == 2)
@@ -62,6 +116,184 @@ public class Main {
 
 
     }
+
+    private static void ProcessCurrentBasket() {
+    }
+
+    private  static void WaitForInput()
+    {
+        Scanner sc = new Scanner(System.in);
+        sc.nextLine();
+    }
+
+    private static void ChangeOpenedBasket() {
+        println("These are the baskets currently on being served : ");
+        for(var b : BasketBeingServed)
+        {
+            println(""+ b.basketId);
+        }
+        print("Enter the basket id you want to open : ");
+        var basIdx = InputNumber();
+
+        for (var b: BasketBeingServed)
+        {
+            if(b.basketId == basIdx)
+            {
+                openedBasket = b;
+                return ;
+            }
+        }
+
+        print("Your given basket does not exist or are not being served... Press anything to continue...");
+        WaitForInput();
+
+    }
+
+    private static void AddChristmasDiscount() {
+        openedBasket.extraDiscount = 10;
+    }
+
+    private static void PrintInfoOfCertainBasket() {
+
+        SimulateClearScreen();
+        print("Enter the ID of the basket you wanna see details about: ");
+        var id = InputNumber();
+
+        StoreBasket sb = null;
+        for(var b : BasketServed)
+        {
+            if(b.basketId == id)
+            {
+                sb = b;
+                break;
+            }
+        }
+        if(sb == null)
+        {
+            for(var b : BasketBeingServed)
+            {
+                if(b.basketId == id)
+                {
+                    sb = b;
+                    break;
+                }
+            }
+        }
+
+        if(sb == null) println("BASKET DOES NOT EXIST!!!");
+        else
+        {
+            var backup = openedBasket;
+            openedBasket = sb;
+            println("Basket Id: " + openedBasket.basketId);
+            println("Customet Id : "+ openedBasket.userId);
+            println("Cashier Name: " + openedBasket.nameOfCashier);
+            println("Address of Shop : " + openedBasket.addressOfShop);
+            DisplayCurrentBasketInfo();
+
+            openedBasket = backup;
+        }
+
+        println("Press any button/enter to continue...");
+        Scanner sc = new Scanner(System.in);
+        sc.nextLine();
+    }
+
+    private static void RemoveItemFromBasket() {
+        SimulateClearScreen();
+        DisplayCurrentBasketInfo();
+        print("Which Item you want to remove: ");
+        var remIdx = InputNumber();
+
+        openedBasket.listOfItems.remove(remIdx);
+        openedBasket.itemCounts.remove(remIdx);
+    }
+
+    private static void AddItemToBasket() {
+        PresentItemList(ITEMS);
+        print("Which item you want to add to the list: ");
+        var itemIdx = InputNumber();
+        print("How many item of this type you want to add: ");
+        var howMany = InputNumber();
+
+        openedBasket.listOfItems.add(ITEMS.get(itemIdx));
+        openedBasket.itemCounts.add(howMany);
+    }
+
+    private static void DisplayCurrentBasketInfo() {
+        var basket = openedBasket;
+        var items = basket.listOfItems;
+        print(FormatString(r.getString("index"),1) + FormatString(r.getString("item"),11) +
+                FormatString(r.getString("count"),10)+
+                FormatString(r.getString("price"),15)+
+                FormatString(r.getString("discount"),10) +
+                FormatString(r.getString("type"),40) + "\n"
+        );
+
+        for (int i = 0; i < items.size() ; i++)
+        {
+            var currentItem = items.get(i);
+            var n = basket.itemCounts.get(i);
+            print(FormatString(Integer.toString(i),1) + FormatString(currentItem.name,15) +
+                    FormatString(""+n,10)+
+                    FormatString(Float.toString(currentItem.CalculatePrice(n)),15)+
+                    FormatString(Float.toString(currentItem.CalculateDiscount(n)),10) +
+                    FormatString(currentItem.getClass().getTypeName().split("\\.")[1],40) + "\n"
+            );
+        }
+
+        println("Total Amount : " + basket.CalculateTotalAmount());
+        println("Net Amount : " + basket.CalculateNetAmount());
+        println("Final Amount (After Extra Discount and Bonus Point) : " + basket.CalculateFinalAmount());
+
+
+    }
+
+    private static void AddNewBasket() {
+        print("Enter the userID this basket will belong to : ");
+        var uid = InputNumber();
+        print("Enter the vat to this basket (percent in integer) : ");
+        var vat = InputFloat();
+
+        var customerType = FindCustomerTypeBasedOnId(uid);
+        if(customerType.equals("SimpleCustomer"))
+        {
+            var basket = new StoreBasket(basketId++,uid,addressOfShop,currentCashier.name,vat);
+            BasketBeingServed.add(basket);
+            openedBasket = basket;
+        }
+        else if(customerType.equals("LoyalCustomer"))
+        {
+            var basket = new BasketForLoyalCustomers(basketId++,uid,addressOfShop,currentCashier.name,vat);
+            BasketBeingServed.add(basket);
+            openedBasket = basket;
+        }
+        else
+        {
+            var basket = new BasketForEmployee(basketId++,uid,addressOfShop,currentCashier.name,vat);
+            BasketBeingServed.add(basket);
+            openedBasket = basket;
+        }
+
+    }
+
+    private static String FindCustomerTypeBasedOnId(int id)
+    {
+        for(var c: CUSTOMERS)
+        {
+            if(c.id == id)
+            {
+                return GetObjectType(c);
+            }
+        }
+        return null;
+    }
+
+    private static String GetObjectType(Object o)
+    {
+        return o.getClass().getTypeName().split("\\.")[1];
+    }
+
 
 
 
@@ -101,6 +333,20 @@ public class Main {
             try {
                 Scanner sc = new Scanner(System.in);
                 return sc.nextInt();
+            }
+            catch (Exception e)
+            {
+                println(r.getString("askValidNumber"));
+            }
+
+        }
+    }
+    private static float InputFloat() {
+        while(true)
+        {
+            try {
+                Scanner sc = new Scanner(System.in);
+                return sc.nextFloat();
             }
             catch (Exception e)
             {
@@ -273,5 +519,10 @@ public class Main {
         {
             println("");
         }
+    }
+
+    private static void DisplayCashierMenu()
+    {
+        println(r.getString("cashierMenu"));
     }
 }

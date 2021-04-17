@@ -1,5 +1,7 @@
 package Items;
 
+import static java.lang.Math.round;
+
 public class ItemTakeItAll extends ItemWithDiscount{
     public int minimumTake;
 
@@ -22,7 +24,14 @@ public class ItemTakeItAll extends ItemWithDiscount{
         else
         {
             var singleDiscount = price * (discount/100);
-            return singleDiscount * n;
+            return FloatToTwo(singleDiscount * n);
         }
+    }
+
+    public float FloatToTwo(float n)
+    {
+        n = n*100;
+        var r = round(n);
+        return (float) r/100;
     }
 }

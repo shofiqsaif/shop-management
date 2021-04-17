@@ -58,7 +58,7 @@ public class StoreBasket {
         {
             amount += listOfItems.get(i).CalculatePrice(itemCounts.get(i)) - listOfItems.get(i).CalculateDiscount(itemCounts.get(i));
         }
-        amount-= amount*(vat/100);
+        amount+= amount*(vat/100);
         netAmount = amount;
         return amount;
     }

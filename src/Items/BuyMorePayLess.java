@@ -21,7 +21,7 @@ public class BuyMorePayLess extends Item{
             if(n>=5)
             {
                 n-=5;
-                freeCount++;
+                freeCount+=2;
             }
             else
             {
