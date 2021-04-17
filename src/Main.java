@@ -1,5 +1,5 @@
 import Items.*;
-import Users.User;
+import Users.*;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -12,30 +12,53 @@ public class Main {
     private static Locale l;
     private static ResourceBundle r;
 
-    private static ArrayList<Item> ITEMS = new ArrayList<>();
-    private static ArrayList<User> EMPLOYEES = new ArrayList<>();
-    private static ArrayList<User> CUSTOMERS = new ArrayList<>();
+    public static ArrayList<Item> ITEMS = new ArrayList<>();
+    public static ArrayList<User> EMPLOYEES = new ArrayList<>();
+    public static ArrayList<User> CUSTOMERS = new ArrayList<>();
 
     private static int itemId = 0;
     private static int userId = 0;
 
     public static void main(String[] args) {
+        PopulateItem();
+        PopulateEmployee();
+        PopulateCustomers();
+
+
 
         lang = "en";
         country = "US";
         l = new Locale(lang, country);
         r = ResourceBundle.getBundle("Properties/Bundle", l);
 
+        UnlockSoftware();
+
         print(r.getString("wish")+"\n");
+        //PresentItemList(ITEMS);
 
-        PopulateItem();
-        PresentItemList(ITEMS);
 
-        println("" + InputNumberString());
 
     }
 
-
+    private static Manager UnlockSoftware() {
+        while(true)
+        {
+            print("Please enter your managerial PIN to unlock the software: ");
+            var pin = InputNumber();
+            for(var e : EMPLOYEES)
+            {
+                var employeeType = e.getClass().getTypeName().split("\\.")[1];
+                if (employeeType.equals("Manager"))
+                {
+                    Manager m = (Manager) e;
+                    if(m.pin == pin)
+                    {
+                        return m;
+                    }
+                }
+            }
+        }
+    }
 
 
     public static void print(String s)
@@ -80,7 +103,10 @@ public class Main {
             }
         }
     }
-
+    public static String FormatString(String s,int pad)
+    {
+        return String.format("%"+pad+"s", s);
+    }
 
     public static void PopulateItem()
     {
@@ -111,8 +137,51 @@ public class Main {
             );
         }
     }
-    public static String FormatString(String s,int pad)
+    public static void PopulateEmployee()
     {
-        return String.format("%"+pad+"s", s);
+        var m = new Manager("manager1","man1",userId++,"man","1122",
+                "NYC","123456", "123456",7777,30000);
+        var c1 = new Cashier("cashier1","cash1",userId++,"c1","c111","IN","dummy1",
+                "internal1",20000,8);
+        var c2 = new Cashier("cashier2","cash2",userId++,"c2","c222","IN","dummy2",
+                "internal2",21000,8);
+        var c3 = new Cashier("cashier3","cash3",userId++,"c3","c333","IN","dummy3",
+                "internal3",22000,8);
+        var c4 = new Cashier("cashier4","cash4",userId++,"c4","c444","IN","dummy4",
+                "internal4",21000,8);
+        var c5 = new Cashier("cashier5","cash5",userId++,"c5","c555","IN","dummy5",
+                "internal5",20000,8);
+
+        EMPLOYEES.add(m);
+        EMPLOYEES.add(c1);
+        EMPLOYEES.add(c2);
+        EMPLOYEES.add(c3);
+        EMPLOYEES.add(c4);
+        EMPLOYEES.add(c5);
+
+        CUSTOMERS.add(m);
+        CUSTOMERS.add(c1);
+        CUSTOMERS.add(c2);
+        CUSTOMERS.add(c3);
+        CUSTOMERS.add(c4);
+        CUSTOMERS.add(c5);
+
     }
+    public static void PopulateCustomers()
+    {
+        var c1 = new SimpleCustomer("simpleCustomer1","simple1",userId++,"sc1",
+                "sc111","PAK","dummy");
+        var c2 = new SimpleCustomer("simpleCustomer2","simple2",userId++,"sc2",
+                "sc222","PAK","dummy");
+        var c3 = new LoyalCustomer("LoyalCustomer1","loyal1",userId++,"lc1",
+                "lc111","PAK","dummy");
+        var c4 = new LoyalCustomer("LoyalCustomer2","loyal2",userId++,"lc2",
+                "lc222","PAK","dummy");
+
+        CUSTOMERS.add(c1);
+        CUSTOMERS.add(c2);
+        CUSTOMERS.add(c3);
+        CUSTOMERS.add(c4);
+    }
+
 }
