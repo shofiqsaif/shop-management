@@ -39,16 +39,11 @@ public class Main {
         PopulateEmployee();
         PopulateCustomers();
 
-        //TODO Uncomment below lone in final code
-        //SetLanguagePreference();
-        lang = "en";
-        country = "US";
-        l = new Locale(lang, country);
-        r = ResourceBundle.getBundle("Properties/Bundle", l);
-        //TODO Remove 4 hardcoded line above
 
-        //TODO below line will be active in final
-        //currentManager = UnlockSoftware();
+
+        SetLanguagePreference();
+
+        currentManager = UnlockSoftware();
 
         SimulateClearScreen();
         print(r.getString("wish")+"\n");
@@ -57,7 +52,7 @@ public class Main {
         println(""+loginType);
         if(loginType == 1)
         {
-            println("Enter your login info : ");
+            println(r.getString("askLoginInfo"));
             currentCashier = HandleCashierLogin();
 
             println(r.getString("wish") + " : " +currentCashier.name);
@@ -68,7 +63,8 @@ public class Main {
                 {
                     DisplayCurrentBasketInfo();
                 }
-                else println("NO BASKET OPENED.");
+                else println(r.getString("noBasketOpen"));
+                println("\n");
                 DisplayCashierMenu();
                 var function = InputNumber();
                 if(function == 1)
@@ -105,6 +101,7 @@ public class Main {
                 }
             }
         }
+
         //TODO Currently not handling Manager Login and Operations
         else if(loginType == 2)
         {
@@ -117,9 +114,75 @@ public class Main {
 
     }
 
-    private static void ProcessCurrentBasket() {
-    }
+    private static void ProcessCurrentBasket()
+    {
+        SimulateClearScreen();
+        var basketType = GetObjectType(openedBasket);
+        var ownerIdx = GetIdxOfCustomerWithCertainId(openedBasket.userId);
+        if(basketType.equals("StoreBasket"))
+        {
+            println(r.getString("basketPrecessed"));
+            WaitForInput();
+        }
+        else
+        {
+            var owner = CUSTOMERS.get(ownerIdx);
+            //println("This is "+ owner.name);
 
+            var bonusUsed = openedBasket.HowMuchBonusUsed();
+            var bonusPointToGive = openedBasket.HowMuchBonusPointToGive(owner.bonus);
+            //println("How much Bonus used "+ bonusUsed);
+            //println("How much Bonus Point to give "+ bonusPointToGive);
+            //println("Bonus: " + owner.bonus +"  Bonus Point: "+ owner.bonusPoint);
+            //println("Bonus: " + owner.bonus +"  Bonus Point: "+ owner.bonusPoint);
+            owner.bonus -= bonusUsed;
+            owner.bonusPoint += bonusPointToGive;
+
+            if(GetObjectType(owner).equals("Cashier") || GetObjectType(owner).equals("Manager"))
+            {
+                while(owner.bonusPoint >= 100)
+                {
+                    owner.bonusPoint -=100;
+                    owner.bonus +=50;
+                }
+            }
+            else{
+                while(owner.bonusPoint >= 100)
+                {
+                    owner.bonusPoint -=100;
+                    owner.bonus +=10;
+                }
+            }
+
+            //println("Bonus: " + owner.bonus +"  Bonus Point: "+ owner.bonusPoint);
+            println(r.getString("basketPrecessed"));
+            DisplayCurrentBasketInfo();
+            WaitForInput();
+
+            BasketServed.add(openedBasket);
+            var i = GetIdxOfBasketWithCertainId(openedBasket.basketId);
+            BasketBeingServed.remove(i);
+            openedBasket = null;
+        }
+    }
+    private static int GetIdxOfBasketWithCertainId(int id)
+    {
+        int idx = 0;
+        for(var b: BasketBeingServed)
+        {
+            if(b.basketId == idx) return idx;
+        }
+        return -1;
+    }
+    private static int GetIdxOfCustomerWithCertainId(int id){
+        int idx = 0;
+        for(var c : CUSTOMERS)
+        {
+            if (c.id == id) return idx;
+            idx++;
+        }
+        return -1;
+    }
     private  static void WaitForInput()
     {
         Scanner sc = new Scanner(System.in);
@@ -127,12 +190,12 @@ public class Main {
     }
 
     private static void ChangeOpenedBasket() {
-        println("These are the baskets currently on being served : ");
+        println(r.getString("thisBasketCurrentlyServed"));
         for(var b : BasketBeingServed)
         {
             println(""+ b.basketId);
         }
-        print("Enter the basket id you want to open : ");
+        print(r.getString("whatBasketToOpen"));
         var basIdx = InputNumber();
 
         for (var b: BasketBeingServed)
@@ -144,7 +207,7 @@ public class Main {
             }
         }
 
-        print("Your given basket does not exist or are not being served... Press anything to continue...");
+        print(r.getString("basketNotExist"));
         WaitForInput();
 
     }
@@ -156,7 +219,7 @@ public class Main {
     private static void PrintInfoOfCertainBasket() {
 
         SimulateClearScreen();
-        print("Enter the ID of the basket you wanna see details about: ");
+        print(r.getString("whichBasketDetails"));
         var id = InputNumber();
 
         StoreBasket sb = null;
@@ -180,17 +243,18 @@ public class Main {
             }
         }
 
-        if(sb == null) println("BASKET DOES NOT EXIST!!!");
+        if(sb == null) println(r.getString("basketNotExist"));
         else
         {
             var backup = openedBasket;
             openedBasket = sb;
-            println("Basket Id: " + openedBasket.basketId);
-            println("Customet Id : "+ openedBasket.userId);
-            println("Cashier Name: " + openedBasket.nameOfCashier);
-            println("Address of Shop : " + openedBasket.addressOfShop);
+//            println(r.getString("basketId") + openedBasket.basketId);
+//            println(r.getString("customerId")+ openedBasket.userId);
+//            println(r.getString("cashierName") + openedBasket.nameOfCashier);
+//            println(r.getString("addressOfShop") + openedBasket.addressOfShop);
+            println(r.getString("currentlyOpen"));
             DisplayCurrentBasketInfo();
-
+            println("\n");
             openedBasket = backup;
         }
 
@@ -202,7 +266,7 @@ public class Main {
     private static void RemoveItemFromBasket() {
         SimulateClearScreen();
         DisplayCurrentBasketInfo();
-        print("Which Item you want to remove: ");
+        print(r.getString("whichItemToRemove"));
         var remIdx = InputNumber();
 
         openedBasket.listOfItems.remove(remIdx);
@@ -211,18 +275,34 @@ public class Main {
 
     private static void AddItemToBasket() {
         PresentItemList(ITEMS);
-        print("Which item you want to add to the list: ");
+        print(r.getString("whichItemToAdd"));
         var itemIdx = InputNumber();
-        print("How many item of this type you want to add: ");
+        print(r.getString("howManyToAdd"));
         var howMany = InputNumber();
 
         openedBasket.listOfItems.add(ITEMS.get(itemIdx));
         openedBasket.itemCounts.add(howMany);
     }
 
+    private static User FindCustomerBasedOnId(int id)
+    {
+        for(var c : CUSTOMERS)
+        {
+            if(c.id == id) return c;
+        }
+        return null;
+    }
     private static void DisplayCurrentBasketInfo() {
         var basket = openedBasket;
         var items = basket.listOfItems;
+        var owner = FindCustomerBasedOnId(basket.userId);
+
+        println(r.getString("basketId") + openedBasket.basketId);
+        println(r.getString("customerId")+ openedBasket.userId);
+        println(r.getString("cashierName") + openedBasket.nameOfCashier);
+        println(r.getString("addressOfShop") + openedBasket.addressOfShop);
+
+        println(r.getString("thisIsBasket") +  openedBasket.basketId + "  "+ r.getString("whichisofType") + openedBasket.getClass().getTypeName());
         print(FormatString(r.getString("index"),1) + FormatString(r.getString("item"),11) +
                 FormatString(r.getString("count"),10)+
                 FormatString(r.getString("price"),15)+
@@ -242,17 +322,18 @@ public class Main {
             );
         }
 
-        println("Total Amount : " + basket.CalculateTotalAmount());
-        println("Net Amount : " + basket.CalculateNetAmount());
-        println("Final Amount (After Extra Discount and Bonus Point) : " + basket.CalculateFinalAmount());
+        print("\n");
+        println(r.getString("totalAmount") + " " + basket.CalculateTotalAmount());
+        println(r.getString("netAmount") + " " + basket.CalculateNetAmount());
+        println(r.getString("finalAmount") +" " + + basket.CalculateFinalAmount(owner.bonus));
 
 
     }
 
     private static void AddNewBasket() {
-        print("Enter the userID this basket will belong to : ");
+        print(r.getString("EnterTheUserIdThisBasketWillBelongTo"));
         var uid = InputNumber();
-        print("Enter the vat to this basket (percent in integer) : ");
+        print(r.getString("EnterVatToBasket"));
         var vat = InputFloat();
 
         var customerType = FindCustomerTypeBasedOnId(uid);
@@ -300,7 +381,7 @@ public class Main {
     private static Manager UnlockSoftware() {
         while(true)
         {
-            print("Please enter your managerial PIN to unlock the software: ");
+            print(r.getString("askManagerPin"));
             var pin = InputNumber();
             for(var e : EMPLOYEES)
             {
@@ -458,6 +539,7 @@ public class Main {
     public static void SetLanguagePreference()
     {
         println("What's your language preference ? : \n1. English \n2.Malay");
+        println ("Apa pilihan bahasa anda?: \n1. Bahasa Inggeris \n2.Malay \n");
         var langIdx = InputNumber();
         if(langIdx == 1)
         {
@@ -482,7 +564,7 @@ public class Main {
             if(employeeChoice>2 || employeeChoice<1)
             {
                 SimulateClearScreen();
-                println("Please Input valid login option...");
+                println(r.getString("PleaseInputValidLoginOption"));
             }
             else if(employeeChoice == 1)
             {
@@ -494,9 +576,9 @@ public class Main {
     public static Cashier HandleCashierLogin()
     {
         Scanner sc = new Scanner(System.in);
-        print("Enter Username: ");
+        print(r.getString("enterUsername"));
         var username = sc.nextLine();
-        print("Enter Password: ");
+        print(r.getString("enterPass"));
         var password = sc.nextLine();
 
         for(var e : EMPLOYEES)
@@ -509,7 +591,7 @@ public class Main {
                 }
             }
         }
-        println("No Valid Cashire found...");
+        println(r.getString("NoValidCashierFound"));
         return HandleCashierLogin();
     }
 

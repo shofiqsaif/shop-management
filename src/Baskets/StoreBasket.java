@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StoreBasket {
+    public float howMuchBonusUsed=0;
     public int basketId;
     public int userId;
     public ArrayList<Item> listOfItems;
@@ -63,7 +64,7 @@ public class StoreBasket {
         return amount;
     }
 
-    public float CalculateFinalAmount()
+    public float CalculateFinalAmount(float bonus)
     {
         float amount = CalculateNetAmount();
         amount -= amount * (extraDiscount/100);
@@ -80,6 +81,17 @@ public class StoreBasket {
         //String formattedDate = myDateObj.format(myFormatObj);
         //System.out.println("After formatting: " + formattedDate);
         //return formattedDate;
+    }
+
+    public int HowMuchBonusPointToGive(float b)
+    {
+        return -1;
+    }
+
+    public float HowMuchBonusUsed()
+    {
+
+        return -1;
     }
 }
 

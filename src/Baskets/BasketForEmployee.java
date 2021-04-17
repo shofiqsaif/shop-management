@@ -20,26 +20,27 @@ public class BasketForEmployee extends StoreBasket{
         float amount = CalculateNetAmount();
         amount -= amount * (extraDiscount/100);
 
-        if(bonus<amount)
+        if(bonus<=amount)
         {
             amount -= bonus;
             howMuchBonusUsed = bonus;
         }
         else
         {
-            amount = 0;
             howMuchBonusUsed = amount;
+            amount = 0;
         }
         return amount;
     }
 
-    public int howMuchBonusPointToGive()
+    public int HowMuchBonusPointToGive(float bonus)
     {
-        return (int) (finalAmount/15);
+        return (int) (CalculateFinalAmount(bonus)/15);
     }
 
     public float HowMuchBonusUsed()
     {
+
         return howMuchBonusUsed;
     }
 }

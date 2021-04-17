@@ -8,6 +8,8 @@ public class User {
     public String password;
     public String address;
     public String phone;
+    public float bonus = 0;
+    public float bonusPoint=0;
 
     public User(String name, String surname, int id, String username, String password, String address, String phone) {
         this.name = name;
@@ -17,5 +19,10 @@ public class User {
         this.password = password;
         this.address = address;
         this.phone = phone;
+    }
+
+    public void CalculateBonus()
+    {
+        return;
     }
 }

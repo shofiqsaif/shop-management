@@ -34,10 +34,11 @@ public class BasketForLoyalCustomers extends StoreBasket{
         return amount;
     }
 
-    public int howMuchBonusPointToGive()
+    public int HowMuchBonusPointToGive(float bonus)
     {
-        return (int) (finalAmount/5);
+        return (int) (CalculateFinalAmount(bonus)/5);
     }
+
     public float HowMuchBonusUsed()
     {
         return howMuchBonusUsed;
