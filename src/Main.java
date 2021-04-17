@@ -105,7 +105,7 @@ public class Main {
         //TODO Currently not handling Manager Login and Operations
         else if(loginType == 2)
         {
-            println("Hat be.");
+            println("Nothing Special on Manager side is implemented.");
         }
 
         //PresentItemList(ITEMS);
@@ -126,6 +126,9 @@ public class Main {
         }
         else
         {
+            println(r.getString("basketPrecessed"));
+            DisplayCurrentBasketInfo();
+
             var owner = CUSTOMERS.get(ownerIdx);
             //println("This is "+ owner.name);
 
@@ -155,8 +158,7 @@ public class Main {
             }
 
             //println("Bonus: " + owner.bonus +"  Bonus Point: "+ owner.bonusPoint);
-            println(r.getString("basketPrecessed"));
-            DisplayCurrentBasketInfo();
+
             WaitForInput();
 
             BasketServed.add(openedBasket);
@@ -264,24 +266,59 @@ public class Main {
     }
 
     private static void RemoveItemFromBasket() {
+        if(openedBasket == null)
+        {
+            print(r.getString("canNotAddRemoveItemAsNoBasketOpen"));
+            WaitForInput();
+            return;
+        }
+
         SimulateClearScreen();
         DisplayCurrentBasketInfo();
         print(r.getString("whichItemToRemove"));
         var remIdx = InputNumber();
 
-        openedBasket.listOfItems.remove(remIdx);
-        openedBasket.itemCounts.remove(remIdx);
+        if(remIdx >= openedBasket.listOfItems.size())
+        {
+            print(r.getString("selectValidItem"));
+            WaitForInput();
+            RemoveItemFromBasket();
+        }
+        else
+        {
+            openedBasket.listOfItems.remove(remIdx);
+            openedBasket.itemCounts.remove(remIdx);
+        }
+
     }
 
     private static void AddItemToBasket() {
+
+        if(openedBasket == null)
+        {
+            print(r.getString("canNotAddItemAsNoBasketOpen"));
+            WaitForInput();
+            return;
+        }
+
         PresentItemList(ITEMS);
         print(r.getString("whichItemToAdd"));
         var itemIdx = InputNumber();
         print(r.getString("howManyToAdd"));
         var howMany = InputNumber();
 
-        openedBasket.listOfItems.add(ITEMS.get(itemIdx));
-        openedBasket.itemCounts.add(howMany);
+        if(itemIdx>=ITEMS.size())
+        {
+            SimulateClearScreen();
+            print(r.getString("selectValidItem") + "\n");
+            AddItemToBasket();
+        }
+        else
+        {
+            openedBasket.listOfItems.add(ITEMS.get(itemIdx));
+            openedBasket.itemCounts.add(howMany);
+        }
+
     }
 
     private static User FindCustomerBasedOnId(int id)
@@ -325,6 +362,7 @@ public class Main {
         print("\n");
         println(r.getString("totalAmount") + " " + basket.CalculateTotalAmount());
         println(r.getString("netAmount") + " " + basket.CalculateNetAmount());
+        println(r.getString("customerBonus") + " " + owner.bonus);
         println(r.getString("finalAmount") +" " + + basket.CalculateFinalAmount(owner.bonus));
 
 
@@ -334,7 +372,7 @@ public class Main {
         print(r.getString("EnterTheUserIdThisBasketWillBelongTo"));
         var uid = InputNumber();
         print(r.getString("EnterVatToBasket"));
-        var vat = InputFloat();
+        var vat = InputValidVat();
 
         var customerType = FindCustomerTypeBasedOnId(uid);
         if(customerType.equals("SimpleCustomer"))
@@ -358,6 +396,16 @@ public class Main {
 
     }
 
+    private static float InputValidVat() {
+        var n = InputFloat();
+        if(n>0) return n;
+        else
+        {
+            print(r.getString("inputValidVat"));
+            return InputValidVat();
+        }
+    }
+
     private static String FindCustomerTypeBasedOnId(int id)
     {
         for(var c: CUSTOMERS)
@@ -374,8 +422,6 @@ public class Main {
     {
         return o.getClass().getTypeName().split("\\.")[1];
     }
-
-
 
 
     private static Manager UnlockSoftware() {
@@ -535,7 +581,6 @@ public class Main {
         CUSTOMERS.add(c3);
         CUSTOMERS.add(c4);
     }
-
     public static void SetLanguagePreference()
     {
         println("What's your language preference ? : \n1. English \n2.Malay");
@@ -555,7 +600,6 @@ public class Main {
         l = new Locale(lang, country);
         r = ResourceBundle.getBundle("Properties/Bundle", l);
     }
-
     private static int InputValidLoginOption() {
         while(true)
         {
@@ -594,7 +638,6 @@ public class Main {
         println(r.getString("NoValidCashierFound"));
         return HandleCashierLogin();
     }
-
     private static void SimulateClearScreen()
     {
         for(int i=0;i<75;i++)
@@ -602,7 +645,6 @@ public class Main {
             println("");
         }
     }
-
     private static void DisplayCashierMenu()
     {
         println(r.getString("cashierMenu"));
