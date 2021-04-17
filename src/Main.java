@@ -1,6 +1,7 @@
 import Items.*;
 import Users.*;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -19,26 +20,50 @@ public class Main {
     private static int itemId = 0;
     private static int userId = 0;
 
+    private static Manager currentManager = null;
+    private static Cashier currentCashier = null;
+
     public static void main(String[] args) {
         PopulateItem();
         PopulateEmployee();
         PopulateCustomers();
 
-
-
+        //TODO Uncomment below lone in final code
+        //SetLanguagePreference();
         lang = "en";
         country = "US";
         l = new Locale(lang, country);
         r = ResourceBundle.getBundle("Properties/Bundle", l);
+        //TODO Remove 4 hardcoded line above
 
-        UnlockSoftware();
+        //TODO below line will be active in final
+        //currentManager = UnlockSoftware();
 
+        SimulateClearScreen();
         print(r.getString("wish")+"\n");
+
+        var loginType = InputValidLoginOption();
+        println(""+loginType);
+        if(loginType == 1)
+        {
+            println("Enter your login info : ");
+            currentCashier = HandleCashierLogin();
+
+            println(r.getString("wish") + " : " +currentCashier.name);
+        }
+        //TODO Currently not handling Manager Login and Operations
+        else if(loginType == 2)
+        {
+            println("Hat be.");
+        }
+
         //PresentItemList(ITEMS);
 
 
 
     }
+
+
 
     private static Manager UnlockSoftware() {
         while(true)
@@ -184,4 +209,69 @@ public class Main {
         CUSTOMERS.add(c4);
     }
 
+    public static void SetLanguagePreference()
+    {
+        println("What's your language preference ? : \n1. English \n2.Malay");
+        var langIdx = InputNumber();
+        if(langIdx == 1)
+        {
+            lang = "en";
+            country = "US";
+        }
+        else if(langIdx ==2)
+        {
+            lang = "malay";
+            country = "SG";
+        }
+
+        l = new Locale(lang, country);
+        r = ResourceBundle.getBundle("Properties/Bundle", l);
+    }
+
+    private static int InputValidLoginOption() {
+        while(true)
+        {
+            println(r.getString("pleaseLogin"));
+            var employeeChoice = InputNumber();
+            if(employeeChoice>2 || employeeChoice<1)
+            {
+                SimulateClearScreen();
+                println("Please Input valid login option...");
+            }
+            else if(employeeChoice == 1)
+            {
+                return 1;
+            }
+            else return 2;
+        }
+    }
+    public static Cashier HandleCashierLogin()
+    {
+        Scanner sc = new Scanner(System.in);
+        print("Enter Username: ");
+        var username = sc.nextLine();
+        print("Enter Password: ");
+        var password = sc.nextLine();
+
+        for(var e : EMPLOYEES)
+        {
+            if(e.getClass().getTypeName().split("\\.")[1].equals("Cashier"))
+            {
+                if(e.username.equals(username) && e.password.equals(password))
+                {
+                    return (Cashier) e;
+                }
+            }
+        }
+        println("No Valid Cashire found...");
+        return HandleCashierLogin();
+    }
+
+    private static void SimulateClearScreen()
+    {
+        for(int i=0;i<75;i++)
+        {
+            println("");
+        }
+    }
 }
