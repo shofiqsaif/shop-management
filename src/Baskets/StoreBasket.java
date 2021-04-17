@@ -48,6 +48,7 @@ public class StoreBasket {
         {
             amount += listOfItems.get(i).CalculatePrice(itemCounts.get(i));
         }
+        totalAmount = amount;
         return amount;
     }
     public float CalculateNetAmount()
@@ -58,13 +59,15 @@ public class StoreBasket {
             amount += listOfItems.get(i).CalculatePrice(itemCounts.get(i)) - listOfItems.get(i).CalculateDiscount(itemCounts.get(i));
         }
         amount-= amount*(vat/100);
+        netAmount = amount;
         return amount;
     }
 
     public float CalculateFinalAmount()
     {
-        float amount = netAmount;
+        float amount = CalculateNetAmount();
         amount -= amount * (extraDiscount/100);
+        finalAmount = amount;
         return amount;
     }
 
