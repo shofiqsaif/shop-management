@@ -4,8 +4,6 @@ import Baskets.StoreBasket;
 import Items.*;
 import Users.*;
 
-import javax.security.auth.callback.TextInputCallback;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -172,7 +170,8 @@ public class Main {
         int idx = 0;
         for(var b: BasketBeingServed)
         {
-            if(b.basketId == idx) return idx;
+            if(b.basketId == id) return idx;
+            idx++;
         }
         return -1;
     }
