@@ -114,6 +114,12 @@ public class Main {
 
     private static void ProcessCurrentBasket()
     {
+        if(openedBasket == null)
+        {
+            print(r.getString("noBasketToProcess"));
+            WaitForInput();
+            return;
+        }
         SimulateClearScreen();
         var basketType = GetObjectType(openedBasket);
         var ownerIdx = GetIdxOfCustomerWithCertainId(openedBasket.userId);
